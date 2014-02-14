@@ -1,0 +1,27 @@
+from django.http import HttpResponse
+from django.shortcuts import render
+from blogapp.models import blog_database #database access
+from django.views.decorators.csrf import csrf_exempt #for security checking
+
+
+def welcome(request):
+    return render(request, 'home.html') #load html file
+
+
+def home(request):
+    posts=[dict(id=i.id, author=i.author, post=i.post) for i in blog_database.objects.order_by('id')]
+	return render(request, 'home.html', {'posts': posts})
+
+@csrf_exempt
+def post(request):
+	if request.method == 'GET':
+    	return render(request, 'post.html')
+	else:
+		author=request.POST.get('author')
+    	post=request.POST.get('post')
+    	insert=blog_database(author=author, post=post)
+    	insert.save()
+    	return render(request, 'post.html')
+
+
+	
